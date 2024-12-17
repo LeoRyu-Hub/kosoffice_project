@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.koffice.member.dao.memberDao">
+	
+	<resultMap type = "com.koffice.vo.member.memberInfoVO" id = "memberMap">
+		<result column = "MEMBER_PHONE" 			property = "memberPhone"/>
+		<result column = "JOIN_DT" 					property = "joinDt"/>
+		<result column = "QUIT_YN" 					property = "quitYN"/>
+		<result column = "POINT" 					property = "point"/>
+		<result column = "RN" 						property = "rn"/>
+	</resultMap>
+	
+	<resultMap type = "com.koffice.vo.member.pointInfoVO" id = "pointMap">
+		<result column = "MEMBER_PHONE" 			property = "memberPhone"/>
+		<result column = "USE_SQ" 					property = "useSq"/>
+		<result column = "POINT_USEAGE" 			property = "pointUseage"/>
+		<result column = "POINT_BALANCE" 			property = "pointBalance"/>
+		<result column = "USE_DT" 					property = "useDt"/>
+		<result column = "RN" 						property = "rn"/>
+	</resultMap>
+	 
+	
+	<select id ="selectMemberList" resultMap = "memberMap">
+		SELECT *
+		FROM (SELECT 
+	    		A.MEMBER_PHONE,
+	    		A.QUIT_YN,
+	    		A.POINT,
+	    		TO_CHAR(A.JOIN_DT,'YYYY-MM-DD') AS JOIN_DT,
+	    		ROWNUM RN
+	    	FROM TBL_MEMBER_INFO A
+	    	WHERE 1=1
+	    	<if test="quitYN!=null and quitYN!='' ">
+	    	AND A.QUIT_YN = #{quitYN}
+			</if>
+			<if test="memberPhone!=null and memberPhone!='' ">
+	    	AND A.MEMBER_PHONE LIKE '%'||#{memberPhone}||'%'
+			</if>
+			)
+		WHERE RN<![CDATA[>]]>(#{currentPage}-1)*#{countPerPage}
+	 	AND RN<![CDATA[<=]]>#{currentPage}*#{countPerPage}
+	 	
+	</select>
+	
+	<select id = "selectTotalMemberPageCnt" resultType = "integer">
+		SELECT COUNT(*)
+		FROM TBL_MEMBER_INFO A
+		WHERE 1=1
+		<if test="quitYN!=null and quitYN!='' ">
+	    	AND A.QUIT_YN = #{quitYN}
+		</if>
+			<if test="memberPhone!=null and memberPhone!='' ">
+	    	AND A.MEMBER_PHONE LIKE '%'||#{memberPhone}||'%'
+		</if>
+	</select>
+	
+	<select id ="selectPointList" resultMap = "pointMap">
+		SELECT *
+		FROM (SELECT 
+	    		A.USE_SQ,
+	    		A.POINT_USEAGE,
+	    		A.POINT_BALANCE,
+	    		TO_CHAR(A.USE_DT,'YYYY-MM-DD') AS USE_DT,
+	    		ROWNUM RN
+	    	FROM TBL_POINT A
+	    	WHERE 1=1
+			<if test="memberPhone!=null and memberPhone!='' ">
+	    	AND A.MEMBER_PHONE =#{memberPhone}
+			</if>
+			<if test="startDate!=null and startDate!='' ">
+			 AND USE_DT <![CDATA[>=]]> #{startDate}
+			</if>
+			<if test="endDate!=null and endDate!='' ">
+			 AND USE_DT <![CDATA[<=]]> #{endDate}
+			</if>
+			)
+		WHERE RN<![CDATA[>]]>(#{currentPage}-1)*#{countPerPage}
+	 	AND RN<![CDATA[<=]]>#{currentPage}*#{countPerPage}
+	</select>
+	
+	<select id = "selectTotalPointPageCnt" resultType = "integer">
+		SELECT COUNT(*)
+		FROM TBL_POINT A
+		WHERE 1=1
+	</select>
+	
+	<update id="updateMember">
+	UPDATE TBL_MEMBER_INFO SET
+	QUIT_YN = #{quitYN}
+	WHERE MEMBER_PHONE = #{memberPhone}
+	</update>
+
+	
+</mapper>

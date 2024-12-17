@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.koffice.manager.dao.managerDao">
+	
+	<resultMap type = "com.koffice.vo.manager.managerInfoVO" id = "managerMap">
+		<result column = "MANAGER_ID" 			property = "managerId"/>
+		<result column = "MANAGER_PWD" 			property = "managerPwd"/>
+		<result column = "MANAGER_NAME" 		property = "managerName"/>
+		<result column = "MANAGER_EMAIL" 		property = "managerEmail"/>
+		<result column = "MANAGER_PHONE" 		property = "managerPhone"/>
+		<result column = "RN"		 			property = "rn"/>
+		<result column = "QUIT_YN" 				property = "quitYN"/>
+		<result column = "JOIN_DT" 				property = "joinDt"/>
+	</resultMap>
+
+	<select id ="selectManagerList" resultMap = "managerMap">
+		SELECT *
+		FROM (SELECT 
+				A.MANAGER_ID,
+				A.MANAGER_NAME,
+				A.MANAGER_EMAIL,
+				A.MANAGER_PHONE,
+				A.QUIT_YN,
+				TO_CHAR(A.JOIN_DT,'YYYY-MM-DD') AS JOIN_DT,
+	    		ROWNUM RN
+	    	FROM TBL_MANAGER_INFO A
+	    	WHERE 1=1
+	    	<if test="managerName!=null and managerName!='' ">
+	    	AND A.MANAGER_NAME LIKE '%'||#{managerName}||'%'
+			</if>
+			<if test="quitYN!=null and quitYN!='' ">
+			AND A.QUIT_YN = #{quitYN}
+			</if>
+			)
+		WHERE RN<![CDATA[>]]>(#{currentPage}-1)*#{countPerPage}
+	 	AND RN<![CDATA[<=]]>#{currentPage}*#{countPerPage}
+	</select>
+	
+	<select id = "selectTotalManagerPageCnt" resultType = "integer">
+		SELECT COUNT(*)
+		FROM TBL_MANAGER_INFO A
+		WHERE 1=1
+		<if test="managerName!=null and managerName!='' ">
+	    AND A.MANAGER_NAME LIKE '%'||#{managerName}||'%'
+		</if>
+		<if test="quitYN!=null and quitYN!='' ">
+		AND A.QUIT_YN = #{quitYN}
+		</if>
+	</select>
+	
+	<select id = "selectManagerDetail" resultMap = "managerMap">
+		SELECT 
+		A.MANAGER_ID,
+		A.MANAGER_NAME,
+		A.MANAGER_EMAIL,
+		A.MANAGER_PHONE,
+		A.MANAGER_PWD,
+		A.QUIT_YN
+		FROM TBL_MANAGER_INFO A
+		WHERE MANAGER_ID=#{managerId}
+	</select>
+	
+	
+	
+	<update id ="updateManager">
+		UPDATE TBL_MANAGER_INFO A SET 
+    		A.MANAGER_ID = #{managerId},
+    		A.MANAGER_NAME = #{managerName},
+    		A.MANAGER_EMAIL = #{managerEmail},
+    		A.MANAGER_PHONE = #{managerPhone},
+    		A.MANAGER_PWD = #{managerPwd},
+    		A.QUIT_YN = #{quitYN}
+		WHERE A.MANAGER_ID = #{managerId}
+	</update>
+	
+	<insert id="insertManager">
+    	INSERT INTO TBL_MANAGER_INFO
+    	(MANAGER_ID, MANAGER_PWD, MANAGER_NAME, MANAGER_EMAIL, MANAGER_PHONE, QUIT_YN, JOIN_DT)
+		VALUES(        	
+        	#{managerId},
+        	#{managerPwd},
+        	#{managerName},
+        	#{managerEmail},
+        	#{managerPhone},
+        	'N',
+        	SYSDATE
+        	)
+	</insert>
+	 
+	
+</mapper>

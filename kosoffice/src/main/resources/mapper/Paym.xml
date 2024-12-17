@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.koffice.paymentmethod.dao.paymentmethodDao">
+	
+	<resultMap type = "com.koffice.vo.paymentmethod.paymInfoVO" id = "paymMap">
+		<result column = "PAYMENTMETHOD_CODE" 		property = "paymCode"/>
+		<result column = "PAYMENTMETHOD_NAME" 		property = "paymName"/>
+		<result column = "ACTIVE_YN" 				property = "activeYN"/>
+		<result column = "REG_DT" 					property = "regDt"/>
+		<result column = "REG_ID" 					property = "regId"/>
+		<result column = "RN"		 				property = "rn"/>
+		<result column = "PAYMENTMETHOD_IMAGE" 		property = "paymUrl"/>
+	</resultMap>
+
+	<select id ="selectPaymList" resultMap = "paymMap">
+		SELECT *
+		FROM (SELECT 
+				A.PAYMENTMETHOD_CODE,
+				A.PAYMENTMETHOD_NAME,
+				A.ACTIVE_YN,
+				TO_CHAR(A.REG_DT,'YYYY-MM-DD') AS REG_DT,
+	    		ROWNUM RN
+	    	FROM TBL_PAYMENTMETHOD_INFO A
+	    	WHERE 1=1
+	    	<if test="paymName!=null and paymName!='' ">
+	    	AND A.PAYMENTMETHOD_NAME LIKE '%'||#{paymName}||'%'
+			</if>
+			<if test="activeYN!=null and activeYN!='' ">
+			AND A.ACTIVE_YN =#{activeYN}
+			</if>
+			)
+		WHERE RN<![CDATA[>]]>(#{currentPage}-1)*#{countPerPage}
+	 	AND RN<![CDATA[<=]]>#{currentPage}*#{countPerPage}
+	</select>
+	
+	<select id = "selectTotalPaymPageCnt" resultType = "integer">
+		SELECT COUNT(*)
+		FROM TBL_PAYMENTMETHOD_INFO A
+		WHERE 1=1
+		<if test="paymName!=null and paymName!='' ">
+	    AND A.PAYMENTMETHOD_NAME LIKE '%'||#{paymName}||'%'
+		</if>
+		<if test="activeYN!=null and activeYN!='' ">
+		AND A.ACTIVE_YN =#{activeYN}
+		</if>
+	</select>
+	
+	<update id ="updatePaym">
+		UPDATE TBL_PAYMENTMETHOD_INFO SET 
+			PAYMENTMETHOD_NAME = #{paymName},
+			ACTIVE_YN = #{activeYN}
+		WHERE PAYMENTMETHOD_CODE = #{paymCode}
+	</update>
+	
+	<insert id="insertPaym">
+    	INSERT INTO TBL_PAYMENTMETHOD_INFO
+    	(PAYMENTMETHOD_CODE, PAYMENTMETHOD_NAME, PAYMENTMETHOD_IMAGE, ACTIVE_YN, REG_DT, REG_ID)
+    	SELECT 
+	        CONCAT('A', TRIM(TO_CHAR(MAX(SUBSTR(PAYMENTMETHOD_CODE, 2, 2)) + 1, '00'))),
+        	#{paymName},
+        	NULL,
+        	#{activeYN},
+        	SYSDATE,
+        	'test1'
+    	FROM TBL_PAYMENTMETHOD_INFO
+	</insert>
+
+
+	
+</mapper>

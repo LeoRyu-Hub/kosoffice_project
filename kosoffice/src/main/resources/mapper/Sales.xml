@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.koffice.sales.dao.salesDao">
+	
+	<resultMap type = "com.koffice.vo.sales.salesInfoVO" id = "salesMap">
+		<result column = "SALES_DT" 				property = "salesDt"/>
+		<result column = "SALES_PRICE" 				property = "salesPrice"/>
+		<result column = "REG_DT" 					property = "regDt"/>
+		<result column = "RN" 						property = "rn"/>
+		<result column = "MENU_NAME" 				property = "menuName"/>
+		<result column = "MENU_PRICE" 				property = "menuPrice"/>
+		<result column = "ORDER_PRICE" 				property = "orderPrice"/>
+		<result column = "ORDER_QTY" 				property = "orderQty"/>
+		<result column = "TOTAL_QTY" 				property = "totalQty"/>
+		<result column = "TOTAL_PRICE"				property = "totalPrice"/>
+		
+	</resultMap>
+	
+	<select id ="selectSalesList" resultMap = "salesMap">
+		SELECT *
+		FROM (SELECT 
+	    		A.SALES_PRICE,
+	    		TO_CHAR(A.SALES_DT,'YYYY-MM-DD') AS SALES_DT,
+	    		ROWNUM RN
+	    	FROM TBL_SALES_INFO A
+	    	WHERE 1=1
+	    	<if test="startDt!=null and startDt!='' ">
+			 AND SALES_DT <![CDATA[>=]]> #{startDt}
+			</if>
+			<if test="endDt!=null and endDt!='' ">
+			 AND SALES_DT <![CDATA[<=]]> #{endDt}
+			</if>
+			)
+		WHERE RN<![CDATA[>]]>(#{currentPage}-1)*#{countPerPage}
+	 	AND RN<![CDATA[<=]]>#{currentPage}*#{countPerPage}
+	</select>
+	
+	<select id = "selectTotalSalesPageCnt" resultType = "integer">
+		SELECT COUNT(*)
+		FROM TBL_SALES_INFO A
+		WHERE 1=1
+		<if test="startDt!=null and startDt!='' ">
+			 AND SALES_DT <![CDATA[>=]]> #{startDt}
+		</if>
+		<if test="endDt!=null and endDt!='' ">
+			 AND SALES_DT <![CDATA[<=]]> #{endDt}
+		</if>
+	</select>
+	
+	<select id="selectOrder" resultMap = "salesMap">
+	SELECT SP AS SALES_PRICE
+    FROM(
+        SELECT SUM(PAY_PRICE) SP
+        FROM TBL_ORDER_INFO
+        WHERE TRUNC(ORDER_DT) = TRUNC(SYSDATE) - 1)
+	</select>
+	
+	<insert id="insertOrder" >
+	INSERT INTO TB_DAILY_ORDER 
+		(SALES_DT, SALES_PRICE, REG_DT)
+		VALUES(TRUNC(SYSDATE) - 1, #{salesPrice}, SYSDATE)
+	</insert>
+	
+	<select id="getTotalList" resultMap = "salesMap">
+	SELECT *
+		FROM (
+		    SELECT A.MENU_NAME, A.MENU_PRICE, SUM(B.ORDER_QTY) AS TOTAL_QTY, SUM(B.ORDER_QTY) * A.MENU_PRICE AS TOTAL_PRICE
+		    FROM TBL_MENU_INFO A, TBL_ORDERMENU B
+		    WHERE A.MENU_CODE = B.MENU_CODE
+		    GROUP BY A.MENU_NAME, A.MENU_PRICE
+		    ORDER BY TOTAL_PRICE DESC
+		)
+	WHERE ROWNUM <![CDATA[<=]]> 5
+	</select>
+	
+	
+	
+</mapper>

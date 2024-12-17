@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.koffice.main.dao.mainDao">
+
+	<resultMap type = "com.koffice.vo.manager.managerInfoVO" id = "managerMap">
+		<result column = "MANAGER_ID" 			property = "managerId"/>
+		<result column = "MANAGER_PWD" 			property = "managerPwd"/>
+		<result column = "MANAGER_NAME" 		property = "managerName"/>
+		<result column = "SALES_DT" 			property = "salesDt"/>
+		<result column = "SP" 					property = "sp"/>
+	</resultMap>
+	
+	<select id="selectManager" resultMap="managerMap">
+	SELECT 
+	MANAGER_PWD,
+	MANAGER_NAME	
+	FROM TBL_MANAGER_INFO
+	WHERE MANAGER_ID=#{managerId}
+	</select>
+	
+	<select id="getTodayOrder" resultType="integer">
+		SELECT NVL(COUNT(ORDER_DT),0)
+		FROM TBL_ORDER_INFO
+		WHERE TRUNC(ORDER_DT)=TRUNC(SYSDATE)
+	</select>
+	
+	<select id="getYesterdayOrder" resultType="integer">
+		SELECT NVL(COUNT(ORDER_DT),0)
+		FROM TBL_ORDER_INFO
+		WHERE TRUNC(ORDER_DT)=TRUNC(SYSDATE)-1
+	</select>
+	
+	<select id="getTodaySales" resultType="integer">
+	SELECT NVL(SP,0) AS SALES_PRICE
+    	FROM(
+        SELECT SUM(PAY_PRICE) SP
+        FROM TBL_ORDER_INFO
+        WHERE TRUNC(ORDER_DT) = TRUNC(SYSDATE))
+	</select>
+	
+	<select id="getYesterdaySales" resultType="integer">
+	SELECT NVL(SP,0) AS SALES_PRICE
+    	FROM(
+        SELECT SUM(PAY_PRICE) SP
+        FROM TBL_ORDER_INFO
+        WHERE TRUNC(ORDER_DT) = TRUNC(SYSDATE)-1)
+	</select>
+	
+	<select id="getChartInfo" resultMap="managerMap">
+    SELECT 
+		    A.SALES_DT, B.SP
+		FROM (
+		    SELECT TO_CHAR(TRUNC(SYSDATE) - LEVEL + 1, 'YYYY-MM-DD') AS SALES_DT
+		    FROM DUAL
+		    CONNECT BY LEVEL <![CDATA[<=]]> 7
+		) A
+		LEFT JOIN (
+		    SELECT TO_CHAR(ORDER_DT, 'YYYY-MM-DD') SALES_DT, SUM(PAY_PRICE) SP
+		    FROM TBL_ORDER_INFO
+		    WHERE TO_CHAR(ORDER_DT, 'YYYYMMDD') <![CDATA[>=]]> TO_CHAR(SYSDATE - 6, 'YYYYMMDD')
+		    AND TO_CHAR(ORDER_DT, 'YYYYMMDD') <![CDATA[<=]]> TO_CHAR(SYSDATE, 'YYYYMMDD')
+		    GROUP BY TO_CHAR(ORDER_DT, 'YYYY-MM-DD')
+		) B
+	ON A.SALES_DT = B.SALES_DT
+	ORDER BY A.SALES_DT ASC
+	</select>
+
+</mapper>
