@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.koffice.menu.dao.menuDao">
+	
+	<resultMap type = "com.koffice.vo.menu.menuInfoVO" id = "menuMap">
+		<result column = "MENU_CODE" 				property = "menuCode"/>
+		<result column = "MENU_NAME" 				property = "menuName"/>
+		<result column = "CATEGORY_CODE" 			property = "categoryCode"/>
+		<result column = "MENU_PRICE" 				property = "menuPrice"/>
+		<result column = "MENU_DETAIL" 				property = "menuDetail"/>
+		<result column = "MENU_ST" 					property = "menuSt"/>
+		<result column = "REG_DT" 					property = "regDt"/>
+		<result column = "REG_ID" 					property = "regId"/>
+		<result column = "CATEGORY_NAME" 			property = "categoryName"/>
+	</resultMap>
+	
+	<select id ="selectMenuList" resultMap = "menuMap">
+		SELECT 
+    		A.MENU_CODE,
+    		A.MENU_NAME,
+    		B.CATEGORY_NAME,
+    		A.MENU_PRICE,
+    		A.MENU_DETAIL,
+    		A.MENU_ST
+    	FROM TBL_MENU_INFO A, TBL_CATEGORY_INFO B
+    	WHERE A.CATEGORY_CODE = B.CATEGORY_CODE
+	</select>
+	
+
+	
+</mapper>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.koffice.main.dao.mainDao">
+
+
+	<resultMap type = "com.koffice.vo.date.ScheduleVO" id = "scheduleMap">
+		<result column = "DT" 					property = "dt"/>
+		<result column = "YOIL" 				property = "yoil"/>
+	</resultMap>
+	
+	
+	<select id ="selectDateList" resultMap="scheduleMap">
+	SELECT 
+	    TO_CHAR(DT, 'YYYY-MM-DD') AS DT, TO_CHAR(DT,'D') AS YOIL
+	FROM (
+	    SELECT TRUNC(TO_DATE(#{dt}, 'yyyy-mm-dd'), 'mm') + (ROWNUM - 1) AS DT
+	    FROM DUAL
+	    CONNECT BY LEVEL <![CDATA[<=]]> (LAST_DAY(TRUNC(TRUNC(TO_DATE(#{dt}, 'yyyy-mm-dd'), 'mm'))) - 
+	                     TRUNC(TRUNC(TO_DATE(#{dt}, 'yyyy-mm-dd'), 'mm'), 'mm') + 1
+	                     )
+	)
+	</select>
+	 
+
+</mapper>

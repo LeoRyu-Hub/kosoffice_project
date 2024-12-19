@@ -1,0 +1,15 @@
+package com.koffice.main.dao;
+
+import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.ModelAttribute;
+
+import com.koffice.vo.manager.managerInfoVO;
+import com.koffice.vo.order.orderInfoVO;
+
+@Repository
+public interface mainDao {
+	
+	public managerInfoVO selectManager(managerInfoVO vo) throws Exception;
+	public orderInfoVO getYesterdayOrder(@ModelAttribute orderInfoVO vo) throws Exception;
+	public orderInfoVO getTodayOrder(@ModelAttribute orderInfoVO vo) throws Exception;
+}

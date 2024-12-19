@@ -1,0 +1,25 @@
+package com.koffice.manager.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.koffice.manager.service.managerService;
+
+@Controller
+public class managerController {
+	
+	@Autowired
+	managerService service;
+	
+	@RequestMapping("/manager/list")
+	public String managerList() throws Exception {
+		return "/manager/manager_list";
+	}
+	
+	@RequestMapping("/manager/reg")
+	public String managerReg() throws Exception {
+		return "/manager/manager_reg";
+	}
+
+}

@@ -1,0 +1,25 @@
+package com.koffice.sales.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.koffice.sales.dao.salesDao;
+import com.koffice.vo.sales.salesInfoVO;
+
+@Service
+public class salesService {
+	
+	@Autowired
+	salesDao dao;
+	
+	public List<salesInfoVO> selectSalesList(salesInfoVO vo) throws Exception{
+		return dao.selectSalesList(vo);
+	}
+	
+	public int selectTotalSalesPageCnt(salesInfoVO vo) throws Exception{
+		return dao.selectTotalSalesPageCnt(vo);
+	}
+
+}

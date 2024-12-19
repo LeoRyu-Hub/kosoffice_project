@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.koffice.menu.dao.menuDao">
+	
+	<resultMap type = "com.koffice.vo.menu.menuCategoryInfoVO" id = "menuCategoryMap" >
+		<result column = "CATEGORY_CODE" 			property = "categoryCode"/>
+		<result column = "CATEGORY_NAME" 			property = "categoryName"/>
+		<result column = "ACTIVE_ST" 				property = "activeSt"/>
+		<result column = "REG_DT" 					property = "regDt"/>
+		<result column = "REG_ID" 					property = "regId"/>
+	</resultMap>
+	
+	<select id = "selectMenuCategoryList" resultMap = "menuCategoryMap">
+	SELECT *
+	FROM (SELECT 
+				A.CATEGORY_NAME ,
+				A.ACTIVE_ST ,
+				A.CATEGORY_CODE,
+				TO_CHAR(A.REG_DT,'YYYY-MM-DD') AS REG_DT,
+				ROWNUM RN
+			FROM TBL_CATEGORY_INFO A
+			WHERE 1=1
+			<if test="categoryName!=null and categoryName!='' ">
+			AND A.CATEGORY_NAME LIKE '%'||#{categoryName}||'%' 
+			</if>
+			<if test="activeSt!=null and activeSt!='' ">
+			AND A.ACTIVE_ST = #{activeSt}
+			</if>
+			)
+	WHERE RN<![CDATA[>]]>(#{currentPage}-1)*#{countPerPage}
+ 	AND RN<![CDATA[<=]]>#{currentPage}*#{countPerPage}
+	</select>
+	
+	<select id = "selectTotalCategoryPageCnt" resultType = "integer">
+		SELECT COUNT(*)
+		FROM TBL_CATEGORY_INFO
+		WHERE 1=1
+		<if test="categoryName!=null and categoryName!='' ">
+		AND A.CATEGORY_NAME LIKE '%'||#{categoryName}||'%' 
+		</if>
+		<if test="activeSt!=null and activeSt!='' ">
+		AND A.ACTIVE_ST = #{activeSt}
+		</if> 
+	</select>
+	
+	<select id = "selectCategoryInfo" resultMap = "menuCategoryMap">
+		SELECT 
+			A.CATEGORY_NAME ,
+			A.ACTIVE_ST 
+		FROM TBL_CATEGORY_INFO A
+		WHERE CATEGORY_CODE = #{categoryCode}
+	</select>
+	
+	<insert id ="insertCategory">
+		INSERT INTO TBL_CATEGORY_INFO
+    		(CATEGORY_CODE, CATEGORY_NAME, ACTIVE_ST, REG_DT, REG_ID)
+		VALUES (
+    			LPAD(TO_NUMBER(NVL((SELECT MAX(TO_NUMBER(CATEGORY_CODE)) FROM TBL_CATEGORY_INFO),0)) + 1, 2,'0'),
+    			#{categoryName},
+    			#{activeSt},
+    			SYSDATE,
+    			'test1'
+		)
+	</insert>
+	
+	<update id ="updateCategory">
+		UPDATE TBL_CATEGORY_INFO SET 
+			CATEGORY_NAME = #{categoryName},
+			ACTIVE_ST=#{activeSt}
+		WHERE CATEGORY_CODE = #{categoryCode}
+	</update>
+
+</mapper>

@@ -1,0 +1,12 @@
+package com.koffice.main.dao;
+
+import org.springframework.stereotype.Repository;
+
+import com.koffice.vo.manager.managerInfoVO;
+
+@Repository
+public interface mainDao {
+	
+	public managerInfoVO selectManager(managerInfoVO vo) throws Exception;
+
+}

@@ -1,0 +1,25 @@
+package com.koffice.member.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.koffice.member.service.memberService;
+
+@Controller
+public class memberController {
+	
+	@Autowired
+	memberService service;
+	
+	@RequestMapping("/member/list")
+	public String memberList() throws Exception {
+		return "/member/member_list";
+	}
+	
+	@RequestMapping("/member/detail")
+	public String memberDetail() throws Exception {
+		return "/member/member_detail";
+	}
+
+}

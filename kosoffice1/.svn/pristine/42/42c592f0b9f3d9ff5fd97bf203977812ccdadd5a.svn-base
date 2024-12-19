@@ -1,0 +1,8 @@
+package com.koffice.paymentmethod.dao;
+
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface paymentmethodDao {
+
+}

@@ -1,0 +1,14 @@
+package com.koffice.paymentmethod.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.koffice.paymentmethod.dao.paymentmethodDao;
+
+@Service
+public class paymentmethodService {
+	
+	@Autowired
+	paymentmethodDao dao;
+
+}
