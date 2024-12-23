@@ -643,9 +643,15 @@
 					str+="</tr>";
 				}
 			}
+<<<<<<< .mine
+			$('#calendarDt').append(str);	
+			//11
+||||||| .r19
+=======
 			$('#calendarDt').append(str);
 			//일정 뿌려주는 코드
 			console.log(vo.schlist);						
+>>>>>>> .r21
 			
 		}
 		

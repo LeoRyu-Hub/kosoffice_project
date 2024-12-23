@@ -320,7 +320,7 @@
 								<button type="button" onclick="generateCalendar()">적용하기</button>
 							</div>
 							<div>
-								<h3 id="calendarTitle"><span id = "titleYear"></span>년 <span id = "titleMonth"></span>월</h3>
+								<h3 id="calendarTitle">2024년 1월</h3>
 							</div>
 						</div>
 						<table class="calendar-table" id="calendarTable">
@@ -401,10 +401,8 @@
 			$('#selectMonth').val(month).prop("selected",true);
 			fullDay = year + '-' + month + '-' + day; // 서버로 보낼 날짜
 			console.log(fullDay);
-			$('#titleYear').text(year);
-			$('#titleMonth').text(month);
 			$('#date').val(fullDay);
-			generateCalendar(); //이번달 달력 생성
+			//generateCalendar(); //이번달 달력 생성
 		});
 		
 		
@@ -605,21 +603,18 @@
 		
 		//적용하기 버튼(달력생성)
 		function generateCalendar(){
-			year = $("#selectYear option:selected").val();
-			month = month = $("#selectMonth option:selected").val();
-			$('#titleYear').text(year);
-			$('#titleMonth').text(month);
 			call_server(calendarForm, '/getCalendarDate', setCalendar);
 		}
 		
 		//실질적 달력 생성
-		function setCalendar(vo){
-			console.log(vo);
-			//날짜 뿌려주는 코드
-			var dateList = vo.daylist.map(item => ({
+		function setCalendar(list){
+			//일자와 요일만 출력
+			var dateList = list.map(item => ({
 							  date: parseInt(item.dt.slice(-2)), // 날짜만 추출
 				  			  yoil: item.yoil // 요일 그대로 출력
 							}));
+			console.log(dateList);
+			
 			$('#calendarDt').empty();
 			var str ="";
 			for (var i= 0; i < dateList.length; i++){
@@ -628,8 +623,6 @@
 					for(var j=1;j<dateList[i].yoil;j++){
 						str+="<td></td>";
 					}
-				}else if(dateList[i].yoil=='1'){
-					str+="<tr>";
 				}
 				str+="<td>"+dateList[i].date+"</td>";	
 				if(i==dateList.length-1 || dateList[i].yoil=='7'){
@@ -642,10 +635,10 @@
 					}
 					str+="</tr>";
 				}
+					
 			}
-			$('#calendarDt').append(str);
-			//일정 뿌려주는 코드
-			console.log(vo.schlist);						
+			$('#calendarDt').append(str);	
+			//11
 			
 		}
 		
